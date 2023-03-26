@@ -14,7 +14,7 @@ export default async function getTicker(req: ExtendedNextApiRequest, res:NextApi
   // set up URL to FMP API
   const baseURL = process.env.API_URL;
   const apiKey = 'apikey=' + process.env.API_KEY;
-  const symbol = req.query.ticker;
+  const symbol = req.query.ticker.toUpperCase();
   let todayEnd = new Date().setHours(23, 59, 59, 999);
 
   const cache = await redis.get(symbol)

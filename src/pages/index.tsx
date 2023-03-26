@@ -1,15 +1,31 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 import { MyFormElement } from '../lib/utils';
 
 const inter = Inter({ subsets: ['latin'] })
 
-
 export default function Home() {
-  // const data = getStockInfo('')
+
+  const [ticker, setTicker] = useState("");
+  const [data, setData] = useState("");
+  
+  const getStockInfo = useCallback(async () => {
+    // API endpoint for GET request
+    const endpoint = `/stocks/${ticker}`
+    const res = await fetch(endpoint)
+    const json = await res.json()
+    return json
+  }, [ticker]);
+
+  const handleFormSubmit = useCallback(async (e) => {
+    e.preventDefault();
+    const data = await getStockInfo()
+    setData(data);
+  }, [getStockInfo]);
+
 
   return (
     <>
@@ -28,7 +44,7 @@ export default function Home() {
         </div>
 
         <div className={styles.content}>
-          <form className={styles.card} onSubmit={handleFormSubmit}>
+          <form className={styles.card}>
             <label htmlFor="ticker">Ticker </label>
             <input
               type="text"
@@ -37,31 +53,16 @@ export default function Home() {
               placeholder='e.g. AAPL'
               pattern='[a-zA-Z]{1,5}'
               required
+              onChange={(e) => setTicker(e.target.value)}
             />
-            <button type="submit">Submit</button>
+            <button onClick={handleFormSubmit}>Submit</button>
           </form>
 
           <div className={styles.code}>
-            {/* <p>{data}</p> */}
+            <p>{JSON.stringify(data)}</p>
           </div>
         </div>
       </main>
     </>
   )
-}
-
-const handleFormSubmit = async (e: React.FormEvent<MyFormElement>) => {
-  e.preventDefault();
-  const ticker = e.currentTarget.elements.ticker.value
-  // return
-  const data = await getStockInfo(ticker)
-  return data
-}
-
-const getStockInfo = async (ticker: string) => {
-  // API endpoint for GET request
-  const endpoint = '/stocks/'+ticker
-  const res = await fetch(endpoint)
-  const json = await res.json()
-  return json
 }
