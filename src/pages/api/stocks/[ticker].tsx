@@ -28,7 +28,6 @@ export default async function getTicker(req: ExtendedNextApiRequest, res:NextApi
     const dt = (new Date().getFullYear()-1) + "-" +  ('0' + (new Date().getMonth()+1)).slice(-2) + "-" + new Date().getDate();
     const histPriceEndpt = "historical-price-full/"+symbol+"?from="+dt+"&to="+dt+"&";
     const deltaPriceEndpt = "stock-price-change/"+symbol+"?";
-    const newsEndpt = "stock_news?tickers="+symbol+"&limit=5&";
     const profileEndpt = "profile/"+symbol+"?";
 
     return await Promise.all([
@@ -38,22 +37,39 @@ export default async function getTicker(req: ExtendedNextApiRequest, res:NextApi
       getStockInfo(baseURL, profileEndpt, apiKey)
     ])
     .then(function (results) {
-      const currPr = results[0].data[0];
-      const histPr = results[1].data.historical[0];
-      const deltaPr = results[2].data[0];
-      const profile = results[3].data[0];
+      // const currPr = results[0].data[0];
+      // const histPr = results[1].data.historical[0];
+      // const deltaPr = results[2].data[0];
+      // const profile = results[3].data[0];
+
+      const [
+        {
+          data: [currPrice]
+        },
+        {
+          data: {
+            historical: [histPrice]
+          },
+        },
+        {
+          data: [deltaPrice]
+        },
+        {
+          data: [profile]
+        },
+      ] = results
 
       const info = { 
         symbol: symbol,
-        currentPrice: currPr.price,
+        currentPrice: currPrice.price,
         historical: {
-          date: histPr.date,
-          open: histPr.open,
-          high: histPr.high,
-          low: histPr.low,
-          close: histPr.close
+          date: histPrice.date,
+          open: histPrice.open,
+          high: histPrice.high,
+          low: histPrice.low,
+          close: histPrice.close
         },
-        changeOverTime: deltaPr["1Y"],
+        changeOverTime: deltaPrice["1Y"],
         profile: {
           companyName: profile.companyName,
           ceo: profile.ceo,
@@ -82,6 +98,7 @@ export default async function getTicker(req: ExtendedNextApiRequest, res:NextApi
 
 // Omitted: Stocks news, sometimes the endpoint works and 
 // sometimes it doesn't. I think it has a limit on calls.
+// const newsEndpt = "stock_news?tickers="+symbol+"&limit=5&";
 // getStockInfo(baseURL, newsEndpt, apiKey)
 // let articles: Article[] = [];
 // const news = results[4].data[0];

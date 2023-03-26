@@ -20,8 +20,7 @@ export default function Home() {
     return json
   }, [ticker]);
 
-  const handleFormSubmit = useCallback(async (e) => {
-    e.preventDefault();
+  const handleFormSubmit = useCallback(async () => {
     const data = await getStockInfo()
     setData(data);
   }, [getStockInfo]);
@@ -44,7 +43,7 @@ export default function Home() {
         </div>
 
         <div className={styles.content}>
-          <form className={styles.card}>
+          <div className={styles.card}>
             <label htmlFor="ticker">Ticker </label>
             <input
               type="text"
@@ -56,10 +55,10 @@ export default function Home() {
               onChange={(e) => setTicker(e.target.value)}
             />
             <button onClick={handleFormSubmit}>Submit</button>
-          </form>
+          </div>
 
           <div className={styles.code}>
-            <p>{JSON.stringify(data)}</p>
+            <pre>{JSON.stringify(data, null, 2)}</pre>
           </div>
         </div>
       </main>
